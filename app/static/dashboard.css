@@ -1,0 +1,64 @@
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+.col-span-2 {
+  grid-column: span 2;
+}
+
+.card-label {
+  font-size: 14px;
+  color: #707eae;
+  margin-bottom: 2px;
+}
+
+.card-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0437f2;
+}
+
+.legend {
+  display: flex;
+  gap: 50px;
+  align-items: left;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0437f2;
+}
+
+.dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50px;
+  margin-right: 10px;
+  display: inline-block;
+}
+
+.green {
+  background-color: #4ade80;
+}
+.yellow {
+  background-color: #fde047;
+}
+.red {
+  background-color: #f87171;
+}
+
+.map-wrapper {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

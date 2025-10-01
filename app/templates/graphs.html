@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RTAverse</title>
+    <link rel="stylesheet" href="../static/styles.css" />
+    <link rel="stylesheet" href="../static/filter-graphs.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script defer src="../static/script.js"></script>
+  </head>
+
+  <body>
+    <div class="pagesize">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div>
+          <!-- Sidebar Header (Toggle + Title) -->
+          <div class="sidebar-header">
+            <button
+              class="sidebar-toggle"
+              onclick="toggleSidebar()"
+              aria-label="Toggle sidebar"
+            >
+              <svg
+                id="toggle-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                height="24px"
+                viewBox="0 -960 960 960"
+                width="24px"
+                fill="#0437F2"
+              >
+                <!-- Default: open state -->
+                <path
+                  d="M689-365v-230q0-21-19.5-29.5T635-618l-93 93q-19 19-19 45t19 45l93 93q15 15 34.5 6.5T689-365ZM212-86q-53 0-89.5-36.5T86-212v-536q0-53 36.5-89.5T212-874h536q53 0 89.5 36.5T874-748v536q0 53-36.5 89.5T748-86H212Zm226-126h310v-536H438v536Z"
+                />
+              </svg>
+            </button>
+            <p class="app-title">RTAVERSE</p>
+          </div>
+
+          <!-- Gradient line -->
+          <div class="gradient-line"></div>
+
+          <!-- Navigation -->
+          <nav class="nav">
+            <a href="{{ url_for('auth.dashboard') }}" class="nav-item">
+              <svg class="icon" viewBox="0 -960 960 960" fill="currentColor">
+                <path
+                  d="M126-212v-342q0-30 13-56.5t37-44.5l228-171q34-26 76-26t76 26l228 171q24 18 37 44.5t13 56.5v342q0 53-36.5 89.5T708-86h-77q-26 0-44.5-18.5T568-149v-196q0-26-18.5-44.5T505-408h-50q-26 0-44.5 18.5T392-345v196q0 26-18.5 44.5T329-86h-77q-53 0-89.5-36.5T126-212Z"
+                />
+              </svg>
+              <span>Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('views.graphs') }}" class="nav-item active">
+              <svg class="icon" viewBox="0 -960 960 960" fill="currentColor">
+                <path
+                  d="M706-126q-26 0-44.5-18.5T643-189v-202q0-26 18.5-44.5T706-454h65q26 0 44.5 18.5T834-391v202q0 26-18.5 44.5T771-126h-65Zm-258 0q-26 0-44.5-18.5T385-189v-582q0-26 18.5-44.5T448-834h64q26 0 44.5 18.5T575-771v582q0 26-18.5 44.5T512-126h-64Zm-259 0q-26 0-44.5-18.5T126-189v-382q0-26 18.5-44.5T189-634h65q26 0 44.5 18.5T317-571v382q0 26-18.5 44.5T254-126h-65Z"
+                />
+              </svg>
+              <span>Graphs</span>
+            </a>
+
+            <a href="{{ url_for('views.database_page') }}" class="nav-item">
+              <svg class="icon" viewBox="0 -960 960 960" fill="currentColor">
+                <path
+                  d="M479-523q165 0 280-52t115-124q0-73-115-124t-280-51q-165 0-279 51T86-699q0 72 114 124t279 52Zm1 88q72 0 142.5-12.5T749-483q56-23 91-55.5t35-72.5v130q0 40-35 72.5T749-353q-56 23-126.5 35.5T480-305q-72 0-142.5-12.5T211-353q-56-23-91-55.5T85-481v-130q0 40 35 72.5t91 55.5q56 23 126.5 35.5T480-435Zm0 218q72 0 142.5-12.5t126.5-36q56-23.5 91-56t35-72.5v131q0 40-35 72.5T749-135q-56 23-126.5 35.5T480-87q-72 0-142.5-12.5T211-135q-56-23-91-55.5T85-263v-131q0 40 35 72.5t91 55.5q56 23 126.5 36T480-217Z"
+                />
+              </svg>
+              <span>Database</span>
+            </a>
+          </nav>
+        </div>
+
+        <!-- Logout -->
+        <a href="#" class="nav-item logout" onclick="openLogoutModal(event)">
+          <svg class="icon" viewBox="0 -960 960 960" fill="currentColor">
+            <path
+              d="M212-86q-53 0-89.5-36.5T86-212v-536q0-53 36.5-89.5T212-874h213q26 0 44.5 18.5T488-811q0 26-18.5 44.5T425-748H212v536h213q26 0 44.5 18.5T488-149q0 26-18.5 44.5T425-86H212Zm423-331H415q-26 0-44.5-18.5T352-480q0-26 18.5-44.5T415-543h220l-52-52q-18-18-18-44t18-44q18-19 43.5-19t44.5 19l159 159q18 19 18 44t-18 44L671-277q-18 19-44 19t-44-19q-18-18-18-44t18-44l52-52Z"
+            />
+          </svg>
+          <span>Logout</span>
+        </a>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <div class="breadcrumbs">Pages / Graphs</div>
+
+        <div class="header">
+          <p class="page-title">Data Visualizations</p>
+
+          <div class="header-controls">
+            <!-- Search Box -->
+            <div class="search-box">
+              <input
+                type="text"
+                placeholder="Search"
+                oninput="toggleSearchIcon(this)"
+              />
+              <svg
+                class="search-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                height="20px"
+                viewBox="0 -960 960 960"
+                width="20px"
+                fill="#0437F2"
+              >
+                <path
+                  d="M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
+                />
+              </svg>
+            </div>
+            <!-- Filter Button (Icon Only) -->
+            <button class="filter-btn" onclick="openFilterModal()">
+              <svg
+                class="filter-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                height="24px"
+                viewBox="0 -960 960 960"
+                width="24px"
+                fill="#0437F2"
+              >
+                <path
+                  d="M440-126q-30 0-52-22t-22-52v-228L142-716q-29-37-9-77.5t67-40.5h560q47 0 67 40.5t-9 77.5L594-428v239q0 27-18 45t-45 18h-91Z"
+                />
+              </svg>
+            </button>
+            <!-- User Avatar -->
+            <img
+              src="https://4kwallpapers.com/images/walls/thumbs_3t/14563.jpg"
+              alt="User Avatar"
+              class="user-avatar"
+            />
+          </div>
+        </div>
+        <!-- End of Header -->
+
+        <!-- ADD HERE NEW CODES -->
+        <!-- ===== KPI Cards (Power BI-style) ===== -->
+        <section class="cards-grid" style="margin-bottom: 6px">
+          <div class="card">
+            <div class="card-label">Total Accidents</div>
+            <div id="kpiAccidents" class="card-value">—</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label">Total Victims</div>
+            <div id="kpiVictims" class="card-value">—</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label">Avg Victims/Accident</div>
+            <div id="kpiAvgVictims" class="card-value">—</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label">Alcohol Involvement</div>
+            <div id="kpiAlcoholPct" class="card-value">—</div>
+          </div>
+        </section>
+
+        <!-- Visualization Grid -->
+        <section class="viz-grid">
+          <!-- Hourly Accidents Card -->
+          <div class="card">
+            <div class="card-value" id="hourlyTitle">
+              Accidents by Hour of Day
+            </div>
+            <div
+              id="hourlyBar"
+              style="width: 100%; height: 420px; margin-top: 12px"
+            ></div>
+          </div>
+
+          <!-- Day of Week Combo Card -->
+          <div class="card">
+            <div class="card-value">Accidents and Severity by Day of Week</div>
+            <div
+              id="dayOfWeekCombo"
+              style="width: 100%; height: 420px; margin-top: 12px"
+            ></div>
+          </div>
+
+          <!-- Top 10 Barangays -->
+          <div class="card">
+            <div class="card-value">Top 10 Barangays by Accident Count</div>
+            <div
+              id="topBarangays"
+              style="width: 100%; height: 420px; margin-top: 12px"
+            ></div>
+          </div>
+
+          <!-- Alcohol Involvement by Hour -->
+          <div class="card">
+            <div class="card-value">
+              Proportion of Alcohol Involvement by Hour of Day
+            </div>
+            <div
+              id="alcoholByHour"
+              style="width: 100%; height: 420px; margin-top: 12px"
+            ></div>
+          </div>
+
+          <!-- Victims by Age -->
+          <div class="card">
+            <div class="card-value">Total Victims by Age</div>
+            <div
+              id="victimsByAge"
+              style="width: 100%; height: 420px; margin-top: 12px"
+            ></div>
+          </div>
+
+          <!-- Gender Pie -->
+          <div class="card">
+            <div class="card-value">Proportion of Victims by Gender</div>
+            <div
+              id="genderPie"
+              style="width: 100%; height: 420px; margin-top: 12px"
+            ></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Logout Modal -->
+    <div id="logoutModal" class="modal hidden">
+      <div class="modal-content">
+        <p>Are you sure you want to logout?</p>
+        <div class="modal-buttons">
+          <button onclick="confirmLogout()">Yes</button>
+          <button onclick="closeLogoutModal()">No</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Modal for Graphs -->
+    <div id="filterModal" class="filter-modal hidden">
+      <div class="filter-modal-content">
+        <!-- Close Button -->
+        <button class="filter-close-btn" onclick="closeFilterModal()">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#6B7280"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="filter-grid">
+          <!-- Row 1 -->
+          <!-- Location -->
+          <div class="filter-group">
+            <label for="locationFilter" class="filter-label">Location</label>
+            <div class="filter-dropdown">
+              <input
+                type="text"
+                id="locationFilter"
+                class="filter-select"
+                placeholder="Select Location"
+                autocomplete="off"
+              />
+              <svg
+                class="dropdown-arrow"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#6B7280"
+                stroke-width="2"
+              >
+                <polyline points="6,9 12,15 18,9"></polyline>
+              </svg>
+              <div id="locationDropdownList" class="dropdown-list"></div>
+            </div>
+          </div>
+
+          <!-- Gender -->
+          <div class="filter-group">
+            <label for="genderFilter" class="filter-label">Gender</label>
+            <div class="filter-dropdown">
+              <select id="genderFilter" class="gender-select">
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="unknown">Unknown</option>
+              </select>
+              <svg
+                class="dropdown-arrow"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#6B7280"
+                stroke-width="2"
+              >
+                <polyline points="6,9 12,15 18,9"></polyline>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Row 2 -->
+          <!-- Hour Committed -->
+          <div class="filter-group">
+            <label class="filter-label">Hour Committed</label>
+            <div class="range-pills">
+              <input
+                id="hourFromBox"
+                class="pill"
+                type="number"
+                min="0"
+                max="23"
+                value="0"
+              />
+              <span class="range-separator">to</span>
+              <input
+                id="hourToBox"
+                class="pill"
+                type="number"
+                min="0"
+                max="23"
+                value="23"
+              />
+            </div>
+            <div class="dual-range">
+              <input id="hourFrom" type="range" min="0" max="23" value="0" />
+              <input id="hourTo" type="range" min="0" max="23" value="23" />
+              <div class="track"></div>
+              <div class="range-fill" id="hourFill"></div>
+            </div>
+          </div>
+
+          <!-- Age Range -->
+          <div class="filter-group">
+            <label class="filter-label">Age Range</label>
+            <div class="range-pills">
+              <input
+                id="ageFromBox"
+                class="pill"
+                type="number"
+                min="0"
+                max="120"
+                value="0"
+              />
+              <span class="range-separator">to</span>
+              <input
+                id="ageToBox"
+                class="pill"
+                type="number"
+                min="0"
+                max="100"
+                value="100"
+              />
+            </div>
+            <div class="dual-range">
+              <input id="ageFrom" type="range" min="0" max="100" value="0" />
+              <input id="ageTo" type="range" min="0" max="100" value="100" />
+              <div class="track"></div>
+              <div class="range-fill" id="ageFill"></div>
+            </div>
+            <div id="ageError" class="age-error-message hidden">
+              Please enter valid ages (0–100) with “From” ≤ “To”
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <!-- Day of Week -->
+          <div class="filter-group">
+            <label class="filter-label">Day of Week</label>
+            <div class="checkbox-grid" id="dowGroup">
+              <label
+                ><input type="checkbox" value="1. Monday" /> 1. Monday</label
+              >
+              <label
+                ><input type="checkbox" value="2. Tuesday" /> 2. Tuesday</label
+              >
+              <label
+                ><input type="checkbox" value="3. Wednesday" /> 3.
+                Wednesday</label
+              >
+              <label
+                ><input type="checkbox" value="4. Thursday" /> 4.
+                Thursday</label
+              >
+              <label
+                ><input type="checkbox" value="5. Friday" /> 5. Friday</label
+              >
+              <label
+                ><input type="checkbox" value="6. Saturday" /> 6.
+                Saturday</label
+              >
+              <label
+                ><input type="checkbox" value="7. Sunday" /> 7. Sunday</label
+              >
+            </div>
+          </div>
+
+          <!-- Alcohol Involved -->
+          <div class="filter-group">
+            <label class="filter-label">Alcohol Involved</label>
+            <div class="checkbox-row" id="alcoholGroup">
+              <label><input type="checkbox" value="Yes" /> Yes</label>
+              <label><input type="checkbox" value="No" /> No</label>
+              <label><input type="checkbox" value="Unknown" /> Unknown</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="filter-actions">
+          <button
+            class="filter-apply-btn"
+            onclick="applyFiltersWithValidation()"
+          >
+            Apply
+          </button>
+          <button class="filter-clear-btn" title="Clear filters">
+            Clear Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../static/filter-graphs.js"></script>
+    <!-- Plotly (for interactivity) -->
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  </body>
+</html>
